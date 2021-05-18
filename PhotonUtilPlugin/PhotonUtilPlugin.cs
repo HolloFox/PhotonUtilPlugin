@@ -7,7 +7,7 @@ using BepInEx;
 using BepInEx.Configuration;
 using Newtonsoft.Json;
 
-namespace ImageToPlane
+namespace PhotonUtil
 {
     [BepInPlugin("org.hollofox.plugins.PhotonUtil", "Photon Util", "0.1.0.0")]
     public class PhotonUtilPlugin: BaseUnityPlugin

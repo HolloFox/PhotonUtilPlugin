@@ -7,8 +7,8 @@
     <ProjectGuid>{B1D07128-5C44-4003-B05F-D35A122E975A}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ImageToPlane</RootNamespace>
-    <AssemblyName>ImageToPlane</AssemblyName>
+    <RootNamespace>PhotonUtil</RootNamespace>
+    <AssemblyName>PhotonUtil</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
