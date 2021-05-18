@@ -5,20 +5,31 @@ using System.IO;
 using UnityEngine;
 using BepInEx;
 using BepInEx.Configuration;
+using ExitGames.Client.Photon;
 using Newtonsoft.Json;
+using Photon;
+using UnityEngine.PlayerLoop;
 
 namespace PhotonUtil
 {
-    [BepInPlugin("org.hollofox.plugins.PhotonUtil", "Photon Util", "1.0.0.0")]
+    [BepInPlugin(Guid, "Photon Util", Version)]
     public class PhotonUtilPlugin: BaseUnityPlugin
     {
+        private const string Guid = "org.hollofox.plugins.PhotonUtil";
+        private const string Version = "1.0.0.0";
+
+
         private static readonly Dictionary<string, ConcurrentQueue<PhotonMessage>> _incomingQueues = new Dictionary<string, ConcurrentQueue<PhotonMessage>>();
         private static readonly Dictionary<string, ConcurrentQueue<PhotonMessage>> _outGoingQueues = new Dictionary<string, ConcurrentQueue<PhotonMessage>>();
-        
+
+        private Hashtable _myCustomProperties = new Hashtable();
+
         // Awake is called once when both the game and the plug-in are loaded
         void Awake()
         {
-            
+            _myCustomProperties[Guid] = this;
+            PhotonNetwork.SetPlayerCustomProperties(_myCustomProperties);
+            // Player
         }
         
         void Update()
@@ -37,6 +48,7 @@ namespace PhotonUtil
                     Debug.Log($"message {incomingString} was a false positive" );
                 }
             }
+            
         }
 
         public static void SendMessage(PhotonMessage message)
