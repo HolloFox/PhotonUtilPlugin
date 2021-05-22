@@ -35,6 +35,13 @@ namespace PhotonUtil
             PhotonNetwork.SetPlayerCustomProperties(_myCustomProperties);
         }
 
+        public void ClearNonPersistent()
+        {
+            _messages.RemoveAll(m => !m.Persist);
+            _myCustomProperties[_mod] = JsonConvert.SerializeObject(_messages);
+            PhotonNetwork.SetPlayerCustomProperties(_myCustomProperties);
+        }
+
         public Dictionary<PhotonPlayer, List<PhotonMessage>> GetPlayerInfo()
         {
             var output = new Dictionary<PhotonPlayer, List<PhotonMessage>>();
@@ -46,7 +53,6 @@ namespace PhotonUtil
                 var x = (string) player.CustomProperties[_mod];
                 var messages = JsonConvert.DeserializeObject<List<PhotonMessage>>(x);
                 output.Add(player,messages);
-                UnityEngine.Debug.Log($"get info: {x}");
             }
             return output;
         }

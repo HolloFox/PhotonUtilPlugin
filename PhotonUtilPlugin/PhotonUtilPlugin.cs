@@ -21,6 +21,10 @@ namespace PhotonUtil
         
         void Update()
         {
+            if (OnBoard() && !Handlers.ContainsKey(Guid))
+            {
+                AddMod(Guid);
+            }
         }
 
         private bool OnBoard()
@@ -31,23 +35,32 @@ namespace PhotonUtil
                     !BoardSessionManager.IsLoading);
         }
 
-        public Guid getAuthor()
+        public static Guid GetAuthor()
         {
             return AuthorId;
         }
 
-        public void AddMessage(string modGuid, PhotonMessage message)
+        public static void AddMessage(string modGuid, PhotonMessage message)
         {
-            message.Author = getAuthor(); // I won't trust you
+            message.Author = GetAuthor(); // I won't trust you
             Handlers[modGuid].Add(message);
         }
 
-        public void AddMod(string modGuid)
+        public static void AddMod(string modGuid)
         {
+            UnityEngine.Debug.Log($"Adding Mod: {modGuid}");
             Handlers.Add(modGuid, new PunHandler(modGuid));
+            UnityEngine.Debug.Log($"Mod {modGuid} Added");
         }
 
-        public Dictionary<PhotonPlayer, List<PhotonMessage>> GetMessages(string modGuid)
+        public static void ClearNonPersistent(string modGuid)
+        {
+            UnityEngine.Debug.Log($"Clearing Mod: {modGuid}");
+            Handlers[modGuid].ClearNonPersistent();
+            UnityEngine.Debug.Log($"Mod {modGuid} Cleared");
+        }
+
+        public static Dictionary<PhotonPlayer, List<PhotonMessage>> GetMessages(string modGuid)
         {
             return Handlers[modGuid].GetPlayerInfo();
         }
