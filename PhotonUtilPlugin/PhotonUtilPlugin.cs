@@ -8,7 +8,7 @@ namespace PhotonUtil
     public class PhotonUtilPlugin: BaseUnityPlugin
     {
         public const string Guid = "org.hollofox.plugins.PhotonUtil";
-        private const string Version = "1.0.0.0";
+        private const string Version = "1.0.1.0";
 
         private static readonly Guid AuthorId = System.Guid.NewGuid();
         
@@ -21,19 +21,9 @@ namespace PhotonUtil
         
         void Update()
         {
-            if (OnBoard() && !Handlers.ContainsKey(Guid))
-            {
-                AddMod(Guid);
-            }
+            if (!Handlers.ContainsKey(Guid)) AddMod(Guid);
         }
 
-        private bool OnBoard()
-        {
-            return (CameraController.HasInstance &&
-                    BoardSessionManager.HasInstance &&
-                    BoardSessionManager.HasBoardAndIsInNominalState &&
-                    !BoardSessionManager.IsLoading);
-        }
 
         public static Guid GetAuthor()
         {
