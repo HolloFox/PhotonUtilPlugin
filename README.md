@@ -12,7 +12,7 @@ This util is designed to be the networking backbone of all talespire related mod
 
 ## How to Compile / Modify
 
-Open PhotonUtilPlugin.sln``` in Visual Studio.
+Open ```PhotonUtilPlugin.sln``` in Visual Studio.
 
 You will need to add references to:
 
