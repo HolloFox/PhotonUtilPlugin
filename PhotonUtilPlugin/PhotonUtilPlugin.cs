@@ -1,85 +1,55 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
-using UnityEngine;
 using BepInEx;
-using BepInEx.Configuration;
-using ExitGames.Client.Photon;
-using Newtonsoft.Json;
-using Photon;
-using UnityEngine.PlayerLoop;
 
 namespace PhotonUtil
 {
     [BepInPlugin(Guid, "Photon Util", Version)]
     public class PhotonUtilPlugin: BaseUnityPlugin
     {
-        private const string Guid = "org.hollofox.plugins.PhotonUtil";
+        public const string Guid = "org.hollofox.plugins.PhotonUtil";
         private const string Version = "1.0.0.0";
 
-
-        private static readonly Dictionary<string, ConcurrentQueue<PhotonMessage>> _incomingQueues = new Dictionary<string, ConcurrentQueue<PhotonMessage>>();
-        private static readonly Dictionary<string, ConcurrentQueue<PhotonMessage>> _outGoingQueues = new Dictionary<string, ConcurrentQueue<PhotonMessage>>();
-
-        private Hashtable _myCustomProperties = new Hashtable();
+        private static readonly Guid AuthorId = System.Guid.NewGuid();
+        
+        private static readonly Dictionary<string,PunHandler> Handlers = new Dictionary<string, PunHandler>();
 
         // Awake is called once when both the game and the plug-in are loaded
         void Awake()
         {
-            _myCustomProperties[Guid] = this;
-            PhotonNetwork.SetPlayerCustomProperties(_myCustomProperties);
-            // Player
         }
         
         void Update()
         {
-            var incomingString = "{}"; // Read from chat
-            if (incomingString.Contains("PackageId") && incomingString.Contains("Version") && incomingString.Contains("SerializedMessage"))
-            {
-                try
-                {
-                    var message = JsonConvert.DeserializeObject<PhotonMessage>(incomingString);
-                    ReceiveMessage(message);
-                    // Remove from chat
-                }
-                catch (Exception e)
-                {
-                    Debug.Log($"message {incomingString} was a false positive" );
-                }
-            }
-            
         }
 
-        public static void SendMessage(PhotonMessage message)
+        private bool OnBoard()
         {
-            Debug.Log($"Sending Message: {message.SerializedMessage}");
-            var key = message.PackageId;
-            if (!_outGoingQueues.ContainsKey(key)) _outGoingQueues.Add(key, new ConcurrentQueue<PhotonMessage>());
-            var queue = _outGoingQueues[key];
-            queue.Enqueue(message);
+            return (CameraController.HasInstance &&
+                    BoardSessionManager.HasInstance &&
+                    BoardSessionManager.HasBoardAndIsInNominalState &&
+                    !BoardSessionManager.IsLoading);
         }
 
-        private static void ReceiveMessage(PhotonMessage message)
+        public Guid getAuthor()
         {
-            var key = message.PackageId;
-            if (!_incomingQueues.ContainsKey(key)) _incomingQueues.Add(key, new ConcurrentQueue<PhotonMessage>());
-            var queue = _incomingQueues[key];
-            queue.Enqueue(message);
+            return AuthorId;
         }
 
-        public static ConcurrentQueue<PhotonMessage> GetIncomingMessageQueue(string key)
+        public void AddMessage(string modGuid, PhotonMessage message)
         {
-            return _incomingQueues.ContainsKey(key) ? _incomingQueues[key] : null;
+            message.Author = getAuthor(); // I won't trust you
+            Handlers[modGuid].Add(message);
         }
 
-        public static bool AddQueue(string key)
+        public void AddMod(string modGuid)
         {
-            Debug.Log($"Loading Key: {key}");
-            if (_incomingQueues.ContainsKey(key)) return false;
-            _incomingQueues.Add(key, new ConcurrentQueue<PhotonMessage>());
-            _outGoingQueues.Add(key, new ConcurrentQueue<PhotonMessage>());
-            return true;
+            Handlers.Add(modGuid, new PunHandler(modGuid));
+        }
+
+        public Dictionary<PhotonPlayer, List<PhotonMessage>> GetMessages(string modGuid)
+        {
+            return Handlers[modGuid].GetPlayerInfo();
         }
     }
 }
