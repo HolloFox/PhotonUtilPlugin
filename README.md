@@ -57,6 +57,8 @@ This will be broadcasted for every other player to view.
 To view everyone's ledgers you call GetMessages
 ```C#
 	var AllMessage = PhotonUtilPlugin.GetMessages(Guid);
+	// OR
+	var NewMessage = PhotonUtilPlugin.GetNewMessages(Guid);
 ```
 This will return a `Dictionary<PhotonPlayer, List<PhotonMessage>>` allowing you to go through the history of messages per person within the room.
 If you're ledger is getting abit long you may call the clear function to clean it up.
