@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using BepInEx;
 
 namespace PhotonUtil
@@ -76,6 +77,19 @@ namespace PhotonUtil
         public static Dictionary<PhotonPlayer, List<PhotonMessage>> GetMessages(string modGuid)
         {
             return Handlers[modGuid].GetPlayerInfo();
+        }
+
+        /// <summary>
+        /// Retrieves only the new messages.
+        /// </summary>
+        /// <param name="modGuid">The GUID of the mod.</param>
+        /// <returns>List of new messages from each player.</returns>
+        public static Dictionary<PhotonPlayer, List<PhotonMessage>> GetNewMessages(string modGuid)
+        {
+            var messages = GetMessages(modGuid);
+            var output = new Dictionary<PhotonPlayer, List<PhotonMessage>>();
+            foreach (var x in messages.Keys) output[x] = messages[x].Where(p => !p.Viewed).ToList();
+            return output;
         }
 
         /// <summary>

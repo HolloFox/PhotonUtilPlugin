@@ -18,7 +18,7 @@ namespace PhotonUtil
         // Transaction
         private readonly Hashtable _myCustomProperties = new Hashtable();
         private readonly List<PhotonMessage> _messages = new List<PhotonMessage>();
-        private Dictionary<PhotonPlayer, List<PhotonMessage>> receivedMessages = new Dictionary<PhotonPlayer, List<PhotonMessage>>();
+        private readonly Dictionary<PhotonPlayer, List<PhotonMessage>> receivedMessages = new Dictionary<PhotonPlayer, List<PhotonMessage>>();
 
         // Local Instance
         private Dictionary<(PhotonPlayer,string), (PhotonMessage, Hashtable)> Instances 
@@ -54,7 +54,8 @@ namespace PhotonUtil
         /// <param name="message">The message intended to be sent.</param>
         public void Add(PhotonMessage message)
         {
-            message.Id = _messages.Last().Id + 1; // still don't trust you.
+            if (_messages.Count > 0) message.Id = _messages.Last().Id + 1; // still don't trust you.
+            else message.Id = 0;
             _messages.Add(message);
             _myCustomProperties[_mod] = JsonConvert.SerializeObject(_messages);
             PhotonNetwork.SetPlayerCustomProperties(_myCustomProperties);
@@ -76,8 +77,6 @@ namespace PhotonUtil
         /// <returns>Gets a dictionary of messages for each player.</returns>
         public Dictionary<PhotonPlayer, List<PhotonMessage>> GetPlayerInfo()
         {
-            var output = new Dictionary<PhotonPlayer, List<PhotonMessage>>();
-
             var players = PhotonNetwork.playerList;
             foreach (var player in players)
             {
@@ -88,15 +87,14 @@ namespace PhotonUtil
                 if (receivedMessages.ContainsKey(player))
                 {
                     var list = receivedMessages[player];
-                    foreach (var photonMessage in messages.Where(m => list.Any( lm => lm.Id == m.Id)))
-                    {
-                        photonMessage.Viewed = true;
-                    }
+                    list.ForEach(t => t.Viewed = true);
+                    messages.RemoveAll(m => list.Any(p => p.Id == m.Id));
+                    list.AddRange(messages);
+                    receivedMessages[player] = list;
                 }
-                output.Add(player,messages);
+                else receivedMessages[player] = messages;
             }
-            receivedMessages = output;
-            return output;
+            return receivedMessages;
         }
 
 
