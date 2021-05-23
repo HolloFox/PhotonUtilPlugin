@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using BepInEx;
-using Newtonsoft.Json;
-using UnityEngine;
 
 namespace PhotonUtil
 {
@@ -54,6 +52,7 @@ namespace PhotonUtil
         public static void AddMod(string modGuid)
         {
             UnityEngine.Debug.Log($"Adding Mod: {modGuid}");
+            if (Handlers.ContainsKey(modGuid)) return;
             Handlers.Add(modGuid, new PunHandler(modGuid));
             UnityEngine.Debug.Log($"Mod {modGuid} Added");
         }
