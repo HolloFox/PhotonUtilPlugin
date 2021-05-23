@@ -54,5 +54,30 @@ namespace PhotonUtil
         {
             return Handlers[modGuid].GetPlayerInfo();
         }
+
+
+        public static void CreateInstance(string InstanceId, PhotonMessage message)
+        {
+            var handler = Handlers[message.PackageId];
+            handler.Create(InstanceId,message);
+        }
+
+        public static void UpdateInstance(string InstanceId, PhotonMessage message)
+        {
+            var handler = Handlers[message.PackageId];
+            handler.Update(InstanceId, message);
+        }
+
+        public static void ReadInstance(string modGuid, string InstanceId, PhotonPlayer player)
+        {
+            var handler = Handlers[modGuid];
+            handler.Read(player,InstanceId);
+        }
+
+        public static void DeleteInstance(string modGuid, string InstanceId)
+        {
+            var handler = Handlers[modGuid];
+            handler.Delete(InstanceId);
+        }
     }
 }
