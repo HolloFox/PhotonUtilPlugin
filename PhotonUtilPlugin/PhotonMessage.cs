@@ -9,6 +9,8 @@ namespace PhotonUtil
         public string Version;
         public string SerializedMessage;
         public Guid Author;
+        public UInt64 Id = 0;
         public bool Persist = false;
+        public bool Viewed = false;
     }
 }

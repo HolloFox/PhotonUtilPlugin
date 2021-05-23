@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ExitGames.Client.Photon;
 using Newtonsoft.Json;
 
@@ -10,6 +11,8 @@ namespace PhotonUtil
         private readonly Hashtable _myCustomProperties = new Hashtable();
 
         private readonly List<PhotonMessage> _messages = new List<PhotonMessage>();
+
+        private Dictionary<PhotonPlayer, List<PhotonMessage>> receivedMessages = new Dictionary<PhotonPlayer, List<PhotonMessage>>();
 
         private readonly string _mod;
         
@@ -30,6 +33,7 @@ namespace PhotonUtil
 
         public void Add(PhotonMessage message)
         {
+            message.Id = _messages.Last().Id + 1; // still don't trust you.
             _messages.Add(message);
             _myCustomProperties[_mod] = JsonConvert.SerializeObject(_messages);
             PhotonNetwork.SetPlayerCustomProperties(_myCustomProperties);
@@ -52,8 +56,18 @@ namespace PhotonUtil
                 if (!player.CustomProperties.ContainsKey(_mod)) continue;
                 var x = (string) player.CustomProperties[_mod];
                 var messages = JsonConvert.DeserializeObject<List<PhotonMessage>>(x);
+
+                if (receivedMessages.ContainsKey(player))
+                {
+                    var list = receivedMessages[player];
+                    foreach (var photonMessage in messages.Where(m => list.Any( lm => lm.Id == m.Id)))
+                    {
+                        photonMessage.Viewed = true;
+                    }
+                }
                 output.Add(player,messages);
             }
+            receivedMessages = output;
             return output;
         }
     }
