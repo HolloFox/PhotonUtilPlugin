@@ -40,12 +40,11 @@ namespace PhotonUtil
         /// <summary>
         /// Message being added to the ledger.
         /// </summary>
-        /// <param name="modGuid">The GUID of the mod</param>
         /// <param name="message">Message being added to the ledger.</param>
-        public static void AddMessage(string modGuid, PhotonMessage message)
+        public static void AddMessage(PhotonMessage message)
         {
             message.Author = GetAuthor(); // I won't trust you
-            Handlers[modGuid].Add(message);
+            Handlers[message.PackageId].Add(message);
         }
 
         /// <summary>
