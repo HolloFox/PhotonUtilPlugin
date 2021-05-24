@@ -20,9 +20,11 @@ namespace PhotonUtil
         private readonly List<PhotonMessage> _messages = new List<PhotonMessage>();
         private readonly Dictionary<PhotonPlayer, List<PhotonMessage>> receivedMessages = new Dictionary<PhotonPlayer, List<PhotonMessage>>();
 
+        private Action<PhotonPlayer, List<PhotonMessage>> TransactionCallbacks;
+
         // Local Instance
-        private Dictionary<(PhotonPlayer,string), (PhotonMessage, Hashtable)> Instances 
-            = new Dictionary<(PhotonPlayer, string), (PhotonMessage, Hashtable)>();
+        private Dictionary<(PhotonPlayer,string), (PhotonMessage, Hashtable, Action<PhotonMessage, PhotonMessage>)> Instances 
+            = new Dictionary<(PhotonPlayer, string), (PhotonMessage, Hashtable, Action<PhotonMessage, PhotonMessage>)>();
 
         // Retrieved
         private Dictionary<(PhotonPlayer, string), PhotonMessage> OtherData
@@ -45,6 +47,11 @@ namespace PhotonUtil
             {
                 UnityEngine.Debug.LogError(e);
             }
+        }
+
+        public void Callback()
+        {
+
         }
 
         // Transaction Methods
@@ -103,7 +110,7 @@ namespace PhotonUtil
         /// </summary>
         /// <param name="InstanceId">Identifier of the value you are storing</param>
         /// <param name="message">Wrapped value that you are storing</param>
-        public void Create(string InstanceId, PhotonMessage message)
+        public void Create(string InstanceId, PhotonMessage message, Action<PhotonMessage, PhotonMessage> callback = null)
         {
             var player = PhotonNetwork.player;
 
@@ -115,7 +122,7 @@ namespace PhotonUtil
                 Hashtable property = new Hashtable();
                 property[$"{_mod}.{InstanceId}"] = JsonConvert.SerializeObject(_messages);
                 PhotonNetwork.SetPlayerCustomProperties(property);
-                Instances[(player, InstanceId)] = (message,property);
+                Instances[(player, InstanceId)] = (message,property, callback);
             }
         }
 
@@ -153,10 +160,11 @@ namespace PhotonUtil
         /// </summary>
         /// <param name="InstanceId">The unique identifier of the instance that is being updated.</param>
         /// <param name="message">The new message that is replacing the old message.</param>
-        public void Update(string InstanceId, PhotonMessage message)
+        /// <param name="callback">Callback method if the message gets updated</param>
+        public void Update(string InstanceId, PhotonMessage message, Action<PhotonMessage, PhotonMessage> callback = null)
         {
             var player = PhotonNetwork.player;
-            if (!Instances.ContainsKey((player, InstanceId))) Create(InstanceId, message);
+            if (!Instances.ContainsKey((player, InstanceId))) Create(InstanceId, message, callback);
             else
             {
                 UnityEngine.Debug.Log($"Updating instance: {_mod}.{InstanceId}");
@@ -164,7 +172,7 @@ namespace PhotonUtil
                 message.Id = tuple.Item1.Id + 1;
                 tuple.Item2[$"{_mod}.{InstanceId}"] = JsonConvert.SerializeObject(message);
                 PhotonNetwork.SetPlayerCustomProperties(tuple.Item2);
-                Instances[(player, InstanceId)] = (message, tuple.Item2);
+                Instances[(player, InstanceId)] = (message, tuple.Item2, callback);
             }
         }
 

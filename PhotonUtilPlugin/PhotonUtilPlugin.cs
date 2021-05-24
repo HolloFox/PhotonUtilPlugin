@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using BepInEx;
+using Debug = UnityEngine.Debug;
 
 namespace PhotonUtil
 {
@@ -15,8 +17,11 @@ namespace PhotonUtil
         private const string Version = "1.0.3.0";
 
         private static readonly Guid AuthorId = System.Guid.NewGuid();
-        
         private static readonly Dictionary<string,PunHandler> Handlers = new Dictionary<string, PunHandler>();
+
+        // Callback
+        private static DateTime _lastCalled = DateTime.UtcNow;
+        private readonly TimeSpan _breakDuration = TimeSpan.FromSeconds(1);
 
         // Awake is called once when both the game and the plug-in are loaded
         void Awake()
@@ -25,6 +30,13 @@ namespace PhotonUtil
         
         void Update()
         {
+            var now = DateTime.UtcNow;
+            if (now - _lastCalled < _breakDuration) return;
+            _lastCalled = now;
+            foreach (var handler in Handlers.Values.AsParallel())
+            {
+                handler.Callback();
+            }
         }
 
         /// <summary>
