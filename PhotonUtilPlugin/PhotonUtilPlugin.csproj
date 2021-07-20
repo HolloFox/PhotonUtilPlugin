@@ -94,6 +94,7 @@
   <ItemGroup>
     <Compile Include="PhotonMessage.cs" />
     <Compile Include="PhotonUtilPlugin.cs" />
+    <Compile Include="PlayerMessaging.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PunHandler.cs" />
   </ItemGroup>

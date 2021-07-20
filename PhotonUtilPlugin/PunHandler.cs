@@ -116,6 +116,8 @@ namespace PhotonUtil
                 property[$"{_mod}.{InstanceId}"] = JsonConvert.SerializeObject(_messages);
                 PhotonNetwork.SetPlayerCustomProperties(property);
                 Instances[(player, InstanceId)] = (message,property);
+
+                
             }
         }
 

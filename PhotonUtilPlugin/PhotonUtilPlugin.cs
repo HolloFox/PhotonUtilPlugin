@@ -12,7 +12,7 @@ namespace PhotonUtil
         /// Identifier used to include this plugin as a bepinex dependency.
         /// </summary>
         public const string Guid = "org.hollofox.plugins.PhotonUtil";
-        private const string Version = "1.0.3.0";
+        public const string Version = "2.0.0.0";
 
         private static readonly Guid AuthorId = System.Guid.NewGuid();
         
